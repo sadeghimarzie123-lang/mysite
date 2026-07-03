@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Nano Hero: مأموریت نانو</title>
+<meta name="description" content="بازی آموزشی ماجراجویی درباره فناوری نانو — ساخته انجمن نانو فناوری دبیرستان انرژی اتمی بندرعباس">
+<meta name="theme-color" content="#0c1f36">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nano Hero">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#050d1a;
+  --bg-panel:#0c1f36;
+  --bg-panel-2:#102844;
+  --cyan:#3FEAD1;
+  --cyan-dim:#1c8f83;
+  --pink:#ff6b8b;
+  --gold:#ffc857;
+  --purple:#9d6fff;
+  --danger:#ff5c5c;
+  --healthy:#ffb4c6;
+  --text:#eaf6f4;
+  --text-dim:#8fb0b8;
+  --line:rgba(63,234,209,0.18);
+  --font-display:'Vazirmatn',Tahoma,sans-serif;
+  --font-body:'Vazirmatn',Tahoma,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1100px 700px at 15% -10%, rgba(157,111,255,0.16), transparent 60%),
+    radial-gradient(900px 700px at 100% 0%, rgba(63,234,209,0.14), transparent 55%),
+    var(--bg-deep);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+#app{max-width:920px;margin:0 auto;padding:18px 16px 40px;position:relative;}
+
+/* ===== veins background flourish ===== */
+.vein-bg{position:fixed;inset:0;z-index:-1;opacity:0.35;pointer-events:none;}
+
+/* ===== top bar ===== */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #eafffb, var(--cyan) 45%, var(--cyan-dim) 100%);box-shadow:0 0 18px rgba(63,234,209,0.55);position:relative;}
+.brand-mark::after{content:"";position:absolute;inset:-5px;border:1.5px solid var(--cyan-dim);border-radius:50%;opacity:0.5;animation:pulseRing 2.4s ease-in-out infinite;}
+@keyframes pulseRing{0%,100%{transform:scale(0.9);opacity:0.6;}50%{transform:scale(1.25);opacity:0;}}
+.brand-name{font-weight:800;font-size:15px;letter-spacing:0.2px;}
+.brand-name small{display:block;font-weight:500;color:var(--text-dim);font-size:11px;}
+.topbar-actions{display:flex;gap:8px;align-items:center;}
+.icon-btn{background:var(--bg-panel);border:1px solid var(--line);color:var(--text);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:.15s;}
+.icon-btn:hover{border-color:var(--cyan);}
+.score-chip{display:flex;align-items:center;gap:6px;background:var(--bg-panel);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-family:var(--font-mono);font-weight:700;font-size:13px;color:var(--gold);}
+
+/* ===== screens ===== */
+.screen{display:none;animation:fadeIn .35s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== start screen ===== */
+.hero-panel{
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:28px 22px;
+  background:linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
+  position:relative;
+  overflow:hidden;
+}
+.hero-panel::before{
+  content:"";position:absolute;left:-40px;top:-60px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle, rgba(63,234,209,0.25), transparent 70%);
+}
+.hero-eyebrow{font-family:var(--font-mono);font-size:11.5px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin-bottom:10px;}
+h1.hero-title{font-size:clamp(26px,5vw,38px);font-weight:900;margin:0 0 10px;line-height:1.25;}
+h1.hero-title span{color:var(--cyan);}
+.hero-desc{color:var(--text-dim);font-size:14.5px;line-height:2;max-width:560px;margin-bottom:22px;}
+.diff-row{margin-bottom:20px;}
+.diff-label{font-size:13px;color:var(--text-dim);margin-bottom:8px;font-weight:700;}
+.diff-options{display:flex;gap:8px;flex-wrap:wrap;}
+.diff-btn{
+  flex:1;min-width:110px;background:var(--bg-deep);border:1.5px solid var(--line);color:var(--text);
+  padding:10px 8px;border-radius:12px;cursor:pointer;font-family:var(--font-body);font-weight:700;font-size:13.5px;text-align:center;transition:.15s;
+}
+.diff-btn small{display:block;font-weight:500;color:var(--text-dim);font-size:10.5px;margin-top:3px;}
+.diff-btn.active{border-color:var(--cyan);background:rgba(63,234,209,0.1);box-shadow:0 0 0 3px rgba(63,234,209,0.12);}
+.cta-btn{
+  background:linear-gradient(90deg, var(--cyan), #35c9b3);color:#04241f;border:none;border-radius:13px;
+  padding:14px 26px;font-weight:800;font-size:15.5px;cursor:pointer;font-family:var(--font-body);
+  box-shadow:0 10px 24px -8px rgba(63,234,209,0.55);transition:.15s;
+}
+.cta-btn:hover{transform:translateY(-1px);}
+.cta-btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--text);box-shadow:none;}
+.legend-row{display:flex;gap:16px;margin-top:22px;flex-wrap:wrap;color:var(--text-dim);font-size:12px;}
+.legend-row div{display:flex;align-items:center;gap:6px;}
+.credit-line{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--text-dim);font-family:var(--font-mono);text-align:center;}
+.credit-line b{color:var(--cyan);font-family:var(--font-body);}
+
+/* ===== mission map ===== */
+.map-wrap{position:relative;padding:10px 4px 20px;}
+.map-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.map-title h2{font-size:19px;margin:0;font-weight:800;}
+.map-title .diff-tag{font-family:var(--font-mono);font-size:11px;color:var(--cyan);background:rgba(63,234,209,0.1);padding:5px 10px;border-radius:8px;border:1px solid var(--line);}
+svg.mapline{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
+.nodes{position:relative;z-index:1;display:flex;flex-direction:column;gap:0;}
+.node-row{display:flex;align-items:center;min-height:98px;}
+.node-row.right{justify-content:flex-start;}
+.node-row.left{justify-content:flex-end;}
+.node{
+  width:82px;height:82px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%, #16324f, var(--bg-panel));border:2px solid var(--line);cursor:pointer;
+  transition:.18s;position:relative;
+}
+.node .num{font-family:var(--font-mono);font-size:10px;color:var(--text-dim);position:absolute;top:6px;}
+.node .emoji{font-size:26px;}
+.node .name{font-size:9.5px;color:var(--text-dim);margin-top:2px;text-align:center;padding:0 6px;}
+.node.unlocked{border-color:var(--cyan-dim);}
+.node.unlocked:hover{border-color:var(--cyan);transform:scale(1.06);box-shadow:0 0 20px rgba(63,234,209,0.3);}
+.node.done{border-color:var(--gold);background:radial-gradient(circle at 35% 30%, #2a2612, var(--bg-panel));}
+.node.locked{opacity:0.4;cursor:not-allowed;}
+.node .stars{position:absolute;bottom:-6px;font-size:11px;letter-spacing:1px;}
+.node .lock{position:absolute;font-size:13px;top:6px;left:6px;}
+
+/* ===== level screen ===== */
+.level-hud{display:flex;align-items:center;justify-content:space-between;background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:12px;gap:10px;flex-wrap:wrap;}
+.lv-title{font-weight:800;font-size:14.5px;display:flex;align-items:center;gap:8px;}
+.lv-stats{display:flex;gap:10px;font-family:var(--font-mono);font-weight:700;font-size:13px;}
+.lv-stats .timer{color:var(--pink);}
+.lv-stats .score{color:var(--gold);}
+.instr-box{background:var(--bg-panel);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;}
+.instr-box h3{margin:2px 0 10px;font-size:17px;}
+.instr-box p{color:var(--text-dim);font-size:13.5px;line-height:1.9;max-width:520px;margin:0 auto 18px;}
+#lv-stage{
+  position:relative;width:100%;height:400px;border-radius:16px;overflow-x:hidden;overflow-y:auto;
+  background:linear-gradient(180deg, #0a1a2e, #071122);border:1px solid var(--line);
+  scrollbar-width:thin;scrollbar-color:var(--cyan-dim) transparent;
+}
+#lv-stage::-webkit-scrollbar{width:6px;}
+#lv-stage::-webkit-scrollbar-thumb{background:var(--cyan-dim);border-radius:6px;}
+.quiz-wrap{padding-bottom:18px;}
+.stage-hint{position:absolute;bottom:8px;right:10px;left:10px;text-align:center;font-size:11px;color:var(--text-dim);font-family:var(--font-mono);pointer-events:none;opacity:0.8;z-index:5;}
+
+/* game-object generic styles */
+.g-item{position:absolute;user-select:none;cursor:pointer;transition:transform .12s;will-change:transform;}
+.g-item:active{transform:scale(0.9);}
+.pop-good{animation:popGood .35s ease forwards;}
+.pop-bad{animation:popBad .35s ease forwards;}
+@keyframes popGood{0%{transform:scale(1);}50%{transform:scale(1.5);opacity:1;}100%{transform:scale(0.2);opacity:0;}}
+@keyframes popBad{0%{transform:scale(1) rotate(0);}50%{transform:scale(1.2) rotate(8deg);}100%{transform:scale(0) rotate(-15deg);opacity:0;}}
+@keyframes shakeX{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.shake{animation:shakeX .3s;}
+.floatText{position:absolute;font-family:var(--font-mono);font-weight:800;font-size:15px;pointer-events:none;animation:floatUp 0.9s ease forwards;z-index:10;}
+@keyframes floatUp{0%{transform:translateY(0);opacity:1;}100%{transform:translateY(-38px);opacity:0;}}
+
+/* level 1 objects */
+.nanobot{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--cyan) 55%,var(--cyan-dim));box-shadow:0 0 14px rgba(63,234,209,0.7);position:absolute;z-index:4;}
+.rbc{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 40% 35%, #ff8fa3, #d43a58 70%);box-shadow:inset 0 0 8px rgba(0,0,0,0.4);position:absolute;}
+.bonus-orb{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#fff,var(--gold));box-shadow:0 0 10px var(--gold);position:absolute;}
+
+/* generic bars */
+.meter-wrap{position:absolute;top:10px;right:10px;left:10px;height:12px;background:rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;z-index:5;border:1px solid var(--line);}
+.meter-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));width:0%;transition:width .2s;}
+
+/* dna level */
+.dna-row{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0;}
+.dna-slot{width:52px;height:30px;border-radius:8px;border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:800;color:var(--text-dim);cursor:pointer;transition:.15s;}
+.dna-slot.filled{border-style:solid;color:#04241f;}
+.dna-slot.selected{border-color:var(--cyan);}
+.dna-fixed{width:52px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:800;color:#04241f;}
+.dna-palette{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px;}
+.dna-piece{width:52px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:800;color:#04241f;cursor:pointer;border:2px solid transparent;transition:.15s;}
+.dna-piece.chosen{border-color:#fff;transform:translateY(-3px);}
+.base-A{background:#3FEAD1;}.base-T{background:#ff6b8b;}.base-C{background:#ffc857;}.base-G{background:#9d6fff;}
+
+/* quiz / choice */
+.quiz-wrap{padding:6px 10px;text-align:center;}
+.quiz-q{font-size:15.5px;font-weight:700;margin-bottom:16px;line-height:1.8;}
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;max-width:560px;margin:0 auto;}
+.choice-card{background:var(--bg-panel-2);border:1.5px solid var(--line);border-radius:12px;padding:14px 8px;cursor:pointer;transition:.15s;text-align:center;}
+.choice-card:hover{border-color:var(--cyan);}
+.choice-card .em{font-size:26px;display:block;margin-bottom:6px;}
+.choice-card .lb{font-size:12.5px;font-weight:700;}
+.choice-card.correct{border-color:var(--cyan);background:rgba(63,234,209,0.12);}
+.choice-card.wrong{border-color:var(--danger);background:rgba(255,92,92,0.12);}
+
+/* match pairs (level 8) */
+.match-cols{display:flex;gap:18px;justify-content:center;padding:16px 10px 8px;flex-wrap:nowrap;}
+.match-col{display:flex;flex-direction:column;gap:10px;flex:1;max-width:230px;}
+.match-card{background:var(--bg-panel-2);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;font-size:12.5px;line-height:1.5;font-weight:700;display:flex;align-items:center;gap:9px;transition:.15s;}
+.match-card .mc-em{font-size:20px;flex-shrink:0;}
+.match-card:hover{border-color:var(--cyan-dim);}
+.match-card.sel{border-color:var(--cyan);background:rgba(63,234,209,0.1);box-shadow:0 0 0 3px rgba(63,234,209,0.12);}
+.match-card.locked{border-color:var(--gold);background:rgba(255,200,87,0.1);opacity:0.75;cursor:default;}
+.match-card.wrong{border-color:var(--danger);background:rgba(255,92,92,0.12);}
+@media(max-width:420px){
+  .match-cols{gap:8px;}
+  .match-card{font-size:11.5px;padding:9px 8px;}
+  .match-card .mc-em{font-size:17px;}
+}
+
+/* bridge level */
+.bridge-track{display:flex;justify-content:center;gap:8px;margin:18px 0;}
+.bridge-slot{width:48px;height:48px;border-radius:10px;border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.bridge-slot.done{border-style:solid;}
+.tube-piece{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:2px solid rgba(255,255,255,0.15);transition:.15s;}
+.tube-piece.chosen{transform:translateY(-4px);border-color:#fff;}
+.palette-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:20px;}
+
+/* cell grid (levels 3,10) */
+.cell-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:18px;height:100%;align-content:center;}
+.cellobj{width:56px;height:56px;border-radius:46% 54% 52% 48%/50% 46% 54% 50%;margin:0 auto;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:.15s;position:relative;}
+.cellobj.healthy{background:radial-gradient(circle at 35% 30%, #ffe1ea, var(--healthy));box-shadow:0 0 10px rgba(255,180,198,0.4);}
+.cellobj.sick{background:radial-gradient(circle at 35% 30%, #4a4a55, #23232e);border:2px solid #7a5cff;box-shadow:0 0 12px rgba(122,92,255,0.5);}
+.cellobj.cancer{background:radial-gradient(circle at 35% 30%, #5a2e2e, #1c0f10);border-radius:38% 62% 55% 45%/60% 40% 60% 40%;box-shadow:0 0 14px rgba(255,92,92,0.55);animation:cancerPulse 1.3s ease-in-out infinite;}
+@keyframes cancerPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.cellobj:active{transform:scale(0.85);}
+
+/* fact / finish screen */
+.fact-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:18px;padding:28px 22px;text-align:center;max-width:520px;margin:0 auto;}
+.fact-medal{font-size:44px;margin-bottom:6px;}
+.fact-card h3{margin:4px 0 14px;font-size:18px;}
+.fact-sci{background:var(--bg-panel-2);border-radius:12px;padding:14px 16px;font-size:13.5px;line-height:2;color:var(--text);border-right:3px solid var(--cyan);text-align:right;margin-bottom:18px;}
+.fact-score{font-family:var(--font-mono);color:var(--gold);font-weight:800;margin-bottom:18px;}
+
+.final-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:20px;padding:34px 22px;text-align:center;}
+.final-medal{font-size:64px;}
+.final-title{font-size:22px;font-weight:900;margin:8px 0 4px;}
+.final-sub{color:var(--text-dim);font-size:13.5px;margin-bottom:20px;}
+.final-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:520px;margin:0 auto 22px;}
+.final-cell{background:var(--bg-panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 4px;font-size:11px;}
+.final-cell .fe{font-size:16px;}
+
+.footer-note{text-align:center;color:var(--text-dim);font-size:11px;margin-top:26px;font-family:var(--font-mono);}
+button.link-back{background:none;border:none;color:var(--text-dim);font-family:var(--font-body);cursor:pointer;font-size:12.5px;text-decoration:underline;margin-top:10px;}
+@media(max-width:520px){
+  .node{width:70px;height:70px;}
+  .node .emoji{font-size:21px;}
+  #lv-stage{height:340px;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">Nano Hero <small>مأموریت نانو</small></div>
+    </div>
+    <div class="topbar-actions">
+      <div class="score-chip">⭐ <span id="global-score">0</span></div>
+      <button class="icon-btn" id="install-btn" title="نصب اپلیکیشن" style="display:none;">⬇️</button>
+      <button class="icon-btn" id="music-toggle" title="موسیقی">🔊</button>
+    </div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="hero-panel">
+      <div class="hero-eyebrow">مسابقه علمی · فناوری نانو</div>
+      <h1 class="hero-title">یک نانوربات کوچک،<br><span>یک مأموریت بزرگ درون بدن انسان.</span></h1>
+      <p class="hero-desc">وارد نقش یک نانوربات شو و در ۱۰ مرحله، رگ‌های خونی، باکتری‌ها، DNA آسیب‌دیده و حتی یک سلول سرطانی را پشت سر بگذار. هر مرحله یک مفهوم واقعی از دنیای نانوتکنولوژی را یادت می‌دهد.</p>
+      <div class="diff-row">
+        <div class="diff-label">درجه سختی را انتخاب کن</div>
+        <div class="diff-options" id="diff-options">
+          <button class="diff-btn" data-d="easy">آسان<small>زمان بیشتر، خطای کمتر</small></button>
+          <button class="diff-btn active" data-d="medium">متوسط<small>تعادل استاندارد</small></button>
+          <button class="diff-btn" data-d="hard">سخت<small>زمان کم، دقت بالا</small></button>
+        </div>
+      </div>
+      <button class="cta-btn" id="start-btn">شروع مأموریت 🚀</button>
+      <div class="legend-row">
+        <div>🥇 طلا ≥ ۸۵٪</div>
+        <div>🥈 نقره ≥ ۶۰٪</div>
+        <div>🥉 برنز ≥ ۳۰٪</div>
+        <div>⏱ هر مرحله زیر ۳ دقیقه</div>
+      </div>
+      <div class="credit-line">ساخته شده توسط <b>انجمن نانو فناوری دبیرستان انرژی اتمی بندرعباس</b></div>
+    </div>
+  </div>
+
+  <!-- MAP SCREEN -->
+  <div class="screen" id="screen-map">
+    <div class="map-wrap">
+      <div class="map-title">
+        <h2>نقشه مأموریت</h2>
+        <span class="diff-tag" id="map-diff-tag">متوسط</span>
+      </div>
+      <div class="nodes" id="nodes-container"></div>
+    </div>
+    <button class="cta-btn ghost" id="restart-from-map" style="display:block;margin:10px auto 0;">🔄 شروع دوباره از ابتدا</button>
+  </div>
+
+  <!-- LEVEL SCREEN -->
+  <div class="screen" id="screen-level">
+    <div class="level-hud">
+      <div class="lv-title"><span id="lv-emoji">🩸</span><span id="lv-name">مرحله</span></div>
+      <div class="lv-stats"><span class="timer">⏱ <span id="lv-timer">00:00</span></span><span class="score">🏆 <span id="lv-score">0</span></span></div>
+    </div>
+    <div class="instr-box" id="instr-box">
+      <h3 id="instr-title"></h3>
+      <p id="instr-text"></p>
+      <button class="cta-btn" id="instr-start">بزن بریم!</button>
+    </div>
+    <div id="lv-stage" style="display:none;"></div>
+  </div>
+
+  <!-- FACT SCREEN -->
+  <div class="screen" id="screen-fact">
+    <div class="fact-card">
+      <div class="fact-medal" id="fact-medal">🥈</div>
+      <h3 id="fact-title">مرحله کامل شد</h3>
+      <div class="fact-score" id="fact-score-text"></div>
+      <div class="fact-sci" id="fact-sci-text"></div>
+      <button class="cta-btn" id="fact-continue">ادامه ماموریت →</button>
+    </div>
+  </div>
+
+  <!-- FINAL SCREEN -->
+  <div class="screen" id="screen-final">
+    <div class="final-card">
+      <div class="final-medal" id="final-medal">🏆</div>
+      <div class="final-title" id="final-title">مأموریت کامل شد!</div>
+      <div class="final-sub" id="final-sub"></div>
+      <div class="final-grid" id="final-grid"></div>
+      <button class="cta-btn" id="final-restart">بازی دوباره از اول</button>
+    </div>
+  </div>
+
+  <div class="footer-note">Nano Hero · یک بازی علمی-آموزشی درباره فناوری نانو</div>
+</div>
+
+<script>
+/* ================= PWA: install + service worker ================= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display='flex';
+});
+window.addEventListener('DOMContentLoaded',()=>{
+  const btn = document.getElementById('install-btn');
+  if(btn){
+    btn.addEventListener('click', async ()=>{
+      if(!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      btn.style.display='none';
+    });
+  }
+});
+window.addEventListener('appinstalled',()=>{
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display='none';
+});
+
+/* ================= UTIL ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function rand(min,max){return Math.random()*(max-min)+min;}
+function randInt(min,max){return Math.floor(rand(min,max+1));}
+function pick(arr){return arr[randInt(0,arr.length-1)];}
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=randInt(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+function mkEl(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e;}
+function fmtTime(s){s=Math.max(0,Math.ceil(s));const m=Math.floor(s/60);const sec=s%60;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');}
+function floatMsg(stage,x,y,text,color){
+  const f=mkEl('div','floatText',text);
+  f.style.left=x+'px';f.style.top=y+'px';f.style.color=color||'#fff';
+  stage.appendChild(f);
+  setTimeout(()=>f.remove(),900);
+}
+
+/* ================= STATE ================= */
+const STATE = {
+  difficulty:'medium',
+  totalScore:0,
+  results:{}, // levelId -> {score,maxScore,stars}
+  musicOn:true,
+};
+
+/* ================= AUDIO ("nano lab" ambience: drone + scanner sweep + crystalline blips) ================= */
+let audioCtx=null, padNodes=null, blipTimeoutId=null;
+const NANO_SCALE = [523.25, 587.33, 659.25, 783.99, 880.00, 987.77, 1046.5, 1318.5]; // C pentatonic-ish, bell-like
+
+function initAudio(){
+  if(audioCtx) return;
+  try{
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const master = audioCtx.createGain();
+    master.gain.value = 0.05;
+    master.connect(audioCtx.destination);
+
+    // low sub-drone: a calm "life support hum"
+    const droneFreqs=[65.4, 98, 130.8];
+    const oscs = droneFreqs.map((f,i)=>{
+      const o = audioCtx.createOscillator();
+      o.type='sine'; o.frequency.value=f;
+      const g = audioCtx.createGain(); g.gain.value=0.22/(i+1);
+      const lfo = audioCtx.createOscillator(); lfo.frequency.value=0.04+i*0.015;
+      const lfoGain = audioCtx.createGain(); lfoGain.gain.value=0.08;
+      lfo.connect(lfoGain); lfoGain.connect(g.gain);
+      o.connect(g); g.connect(master);
+      o.start(); lfo.start();
+      return {o,lfo};
+    });
+
+    // "nano scanner" sweep: a filtered saw slowly sweeping like a lab scanner
+    const scanOsc = audioCtx.createOscillator();
+    scanOsc.type='sawtooth'; scanOsc.frequency.value=220;
+    const scanFilter = audioCtx.createBiquadFilter();
+    scanFilter.type='bandpass'; scanFilter.Q.value=9; scanFilter.frequency.value=400;
+    const scanGain = audioCtx.createGain(); scanGain.gain.value=0.045;
+    const scanLfo = audioCtx.createOscillator(); scanLfo.frequency.value=0.065;
+    const scanLfoGain = audioCtx.createGain(); scanLfoGain.gain.value=650;
+    scanLfo.connect(scanLfoGain); scanLfoGain.connect(scanFilter.frequency);
+    scanOsc.connect(scanFilter); scanFilter.connect(scanGain); scanGain.connect(master);
+    scanOsc.start(); scanLfo.start();
+
+    padNodes = {master, oscs, scanOsc, scanLfo};
+    scheduleBlip();
+  }catch(e){ padNodes=null; }
+}
+
+function playBlip(){
+  if(!audioCtx || !padNodes) return;
+  const t = audioCtx.currentTime;
+  const freq = NANO_SCALE[randInt(0,NANO_SCALE.length-1)];
+  const o = audioCtx.createOscillator();
+  o.type='sine'; o.frequency.value=freq;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type='bandpass'; filter.frequency.value=freq*1.5; filter.Q.value=7;
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(0.06,t+0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.9);
+  o.connect(filter); filter.connect(g); g.connect(padNodes.master);
+  o.start(t); o.stop(t+1);
+}
+function scheduleBlip(){
+  blipTimeoutId = setTimeout(()=>{
+    if(STATE.musicOn) playBlip();
+    scheduleBlip();
+  }, rand(1500,3400));
+}
+
+function toggleMusic(){
+  STATE.musicOn = !STATE.musicOn;
+  $('#music-toggle').textContent = STATE.musicOn ? '🔊' : '🔇';
+  if(STATE.musicOn){ initAudio(); if(padNodes) padNodes.master.gain.value=0.05; if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); }
+  else if(padNodes){ padNodes.master.gain.value=0; }
+}
+$('#music-toggle').addEventListener('click',toggleMusic);
+
+/* ================= SCREEN NAV ================= */
+function showScreen(id){
+  $$('.screen').forEach(s=>s.classList.remove('active'));
+  $('#'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ================= DIFFICULTY UI ================= */
+$$('.diff-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    $$('.diff-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    STATE.difficulty = btn.dataset.d;
+  });
+});
+$('#start-btn').addEventListener('click',()=>{
+  initAudio();
+  renderMap();
+  showScreen('screen-map');
+});
+$('#restart-from-map').addEventListener('click',resetGame);
+$('#final-restart').addEventListener('click',resetGame);
+function resetGame(){
+  STATE.totalScore=0; STATE.results={};
+  $('#global-score').textContent='0';
+  showScreen('screen-start');
+}
+
+/* ================= LEVEL DEFINITIONS ================= */
+const DIFF_LABEL = {easy:'آسان',medium:'متوسط',hard:'سخت'};
+
+const LEVELS = [
+  {
+    id:1, emoji:'🩸', name:'ورود به رگ‌های خونی', organ:'رگ خونی',
+    instr:'با کلیدهای بالا/پایین (یا کشیدن انگشت) نانوربات را حرکت بده، از برخورد با گلبول‌های قرمز در حال عبور بپرهیز و ذرات طلایی انرژی را جمع کن.',
+    maxScore:100,
+    fact:'نانوربات‌های آزمایشی می‌توانند از رگ‌های خونی به قطر چند میکرومتر عبور کنند تا دارو را مستقیم به مقصد برسانند.',
+    duration:d=>({easy:42,medium:32,hard:24}[d]),
+    run: runLevel1
+  },
+  {
+    id:2, emoji:'🦠', name:'شکار باکتری', organ:'میکروسکوپ نانو',
+    instr:'با اسکنر نانویی، فقط روی باکتری‌ها (سبز/بنفش) ضربه بزن. مراقب باش به سلول‌های سالم صورتی ضربه نزنی!',
+    maxScore:100,
+    fact:'نانوذرات نقره و اکسید روی می‌توانند دیواره سلولی باکتری‌ها را از بین ببرند بدون آنکه به سلول‌های انسانی آسیب برسانند.',
+    duration:d=>({easy:30,medium:24,hard:18}[d]),
+    run: runLevel2
+  },
+  {
+    id:3, emoji:'💊', name:'دارورسانی هدفمند', organ:'بافت بیمار',
+    instr:'روی سلول بیمار (بنفش تیره) کلیک کن تا دارو به آن برسد. اگر روی سلول سالم صورتی کلیک کنی امتیاز کم می‌شود.',
+    maxScore:100,
+    fact:'در دارورسانی هدفمند نانویی، ذرات دارو با پوششی هوشمند فقط در کنار سلول بیمار باز می‌شوند و به سلول سالم آسیب نمی‌زنند.',
+    duration:d=>({easy:30,medium:24,hard:18}[d]),
+    run: runLevel3
+  },
+  {
+    id:4, emoji:'🧬', name:'تعمیر DNA', organ:'هسته سلول',
+    instr:'یک قطعه از پازل را انتخاب کن، سپس روی جای خالی مناسب در رشته DNA بگذار. یادت باشد: A با T و C با G جفت می‌شود.',
+    maxScore:100,
+    fact:'نانوذرات طلا و DNA-اوریگامی به دانشمندان کمک می‌کنند نقص‌های ژنتیکی را در مقیاس نانومتر شناسایی و اصلاح کنند.',
+    duration:d=>({easy:60,medium:48,hard:36}[d]),
+    run: runLevel4
+  },
+  {
+    id:5, emoji:'🛡', name:'ساخت سپر گرافنی', organ:'مسیر خطرناک',
+    instr:'با حرکت‌دادن سپر در پایین صفحه، شش‌ضلعی‌های گرافن را بگیر و از ذرات آتشین قرمز دوری کن تا سپر کامل شود.',
+    maxScore:100,
+    fact:'گرافن، ورقه‌ای تک‌اتمی از کربن، حدود ۲۰۰ برابر مستحکم‌تر از فولاد است اما فوق‌العاده سبک و نازک است.',
+    duration:d=>({easy:32,medium:26,hard:20}[d]),
+    run: runLevel5
+  },
+  {
+    id:6, emoji:'⚡', name:'نانولوله‌های کربنی', organ:'پل خراب',
+    instr:'قطعه‌ی رنگی را از پایین انتخاب کن، سپس روی جای خالی هم‌رنگ در پل بگذار تا پل کامل شود.',
+    maxScore:100,
+    fact:'نانولوله‌های کربنی رسانایی الکتریکی و استحکام کششی فوق‌العاده‌ای دارند و در ساخت پل‌های میکروسکوپی و مدارهای نانویی استفاده می‌شوند.',
+    duration:d=>({easy:50,medium:40,hard:30}[d]),
+    run: runLevel6
+  },
+  {
+    id:7, emoji:'🧫', name:'آزمایشگاه نانو', organ:'میز آزمایش',
+    instr:'به سه پرسش کوتاه درباره‌ی مواد نانویی پاسخ بده و محصول درست را با ماده‌ی مناسب بساز.',
+    maxScore:99,
+    fact:'دی‌اکسید تیتانیوم در مقیاس نانو، پایه‌ی اصلی شیشه‌های خودتمیزشونده و ضدآفتاب‌های شفاف است.',
+    duration:d=>({easy:60,medium:45,hard:33}[d]),
+    run: runLevel7
+  },
+  {
+    id:8, emoji:'🌿', name:'نانو در طبیعت', organ:'باغ زیست‌الهام',
+    instr:'هر پدیده طبیعی را به فناوری نانویی‌ای که از آن الهام گرفته وصل کن.',
+    maxScore:100,
+    fact:'اثر لوتوس -خودتمیزشوندگی برگ نیلوفر آبی- الهام‌بخش ساخت پوشش‌های نانویی ضدآب و خودتمیزشونده شده است.',
+    duration:d=>({easy:55,medium:42,hard:32}[d]),
+    run: runLevel8
+  },
+  {
+    id:9, emoji:'🏭', name:'کارخانه نانو', organ:'خط تولید',
+    instr:'قطعات درست را از روی نوار انتقال انتخاب کن تا محصول نانویی خواسته‌شده ساخته شود.',
+    maxScore:100,
+    fact:'پارچه‌های نانویی با پوششی از نانوذرات نقره یا سیلیکون، در برابر آب، لک و باکتری مقاوم می‌شوند.',
+    duration:d=>({easy:40,medium:32,hard:24}[d]),
+    run: runLevel9
+  },
+  {
+    id:10, emoji:'🧠', name:'نبرد با سلول سرطانی', organ:'اتاق نهایی',
+    instr:'سلول‌های سرطانی (تیره و ناهموار) را شناسایی کن و روی آن‌ها ضربه بزن تا دارو تحویل شود. به سلول سالم صورتی دست نزن!',
+    maxScore:100,
+    fact:'در درمان هدفمند نانویی سرطان، نانوذرات حامل دارو با شناسایی نشانگرهای سطحی سلول تومور، فقط همان سلول‌ها را نابود می‌کنند.',
+    duration:d=>({easy:36,medium:28,hard:22}[d]),
+    run: runLevel10
+  },
+];
+
+/* ================= MAP RENDER ================= */
+function renderMap(){
+  $('#map-diff-tag').textContent = DIFF_LABEL[STATE.difficulty];
+  const container = $('#nodes-container');
+  container.innerHTML='';
+  LEVELS.forEach((lv,idx)=>{
+    const row = mkEl('div','node-row '+(idx%2===0?'right':'left'));
+    const done = STATE.results[lv.id];
+    const unlocked = lv.id===1 || STATE.results[lv.id-1];
+    const node = mkEl('div','node '+(done?'done':(unlocked?'unlocked':'locked')));
+    node.innerHTML = `<span class="num">${lv.id.toString().padStart(2,'0')}</span><span class="emoji">${lv.emoji}</span><span class="name">${lv.organ}</span>${done?`<span class="stars">${starsToEmoji(done.stars)}</span>`:''}${!unlocked?'<span class="lock">🔒</span>':''}`;
+    if(unlocked){
+      node.addEventListener('click',()=>openLevel(lv.id));
+    }
+    row.appendChild(node);
+    container.appendChild(row);
+  });
+}
+function starsToEmoji(n){ return '⭐'.repeat(n) + '☆'.repeat(3-n); }
+
+/* ================= LEVEL FLOW CONTROLLER ================= */
+let LVCTX = null; // {level, score, timerId, remaining, destroy, finished}
+
+function openLevel(id){
+  const lv = LEVELS.find(l=>l.id===id);
+  $('#lv-emoji').textContent = lv.emoji;
+  $('#lv-name').textContent = lv.name;
+  $('#lv-score').textContent = '0';
+  $('#lv-timer').textContent = fmtTime(lv.duration(STATE.difficulty));
+  $('#instr-title').textContent = lv.name;
+  $('#instr-text').textContent = lv.instr;
+  $('#instr-box').style.display='block';
+  const stage = $('#lv-stage');
+  stage.style.display='none';
+  stage.style.touchAction='auto';
+  stage.innerHTML='';
+  showScreen('screen-level');
+
+  const startBtn = $('#instr-start');
+  const newStartBtn = startBtn.cloneNode(true);
+  startBtn.parentNode.replaceChild(newStartBtn,startBtn);
+  newStartBtn.addEventListener('click',()=>beginLevel(lv));
+}
+
+function beginLevel(lv){
+  $('#instr-box').style.display='none';
+  const stage = $('#lv-stage');
+  stage.style.display='block';
+  stage.innerHTML='';
+
+  let score = 0;
+  let finished = false;
+  const maxScore = lv.maxScore;
+
+  function addScore(delta){
+    if(finished) return;
+    score = clamp(score+delta,0,maxScore*1.15);
+    $('#lv-score').textContent = Math.round(score);
+  }
+  function finishNow(){
+    if(finished) return;
+    finished = true;
+    clearInterval(timerId);
+    if(runtime && runtime.destroy) try{runtime.destroy();}catch(e){}
+    completeLevel(lv, Math.round(clamp(score,0,maxScore)));
+  }
+
+  const totalTime = lv.duration(STATE.difficulty);
+  let remaining = totalTime;
+  $('#lv-timer').textContent = fmtTime(remaining);
+  const timerId = setInterval(()=>{
+    remaining -= 0.1;
+    if(remaining<=0){ $('#lv-timer').textContent='00:00'; finishNow(); }
+    else { $('#lv-timer').textContent = fmtTime(remaining); }
+  },100);
+
+  const diffKey = STATE.difficulty;
+  const runtime = lv.run(stage, diffKey, addScore, finishNow, totalTime);
+  LVCTX = {lv, finishNow};
+}
+
+function completeLevel(lv, score){
+  const pct = score / lv.maxScore;
+  let stars = 0;
+  if(pct>=0.85) stars=3; else if(pct>=0.6) stars=2; else if(pct>=0.3) stars=1;
+  const prev = STATE.results[lv.id];
+  if(!prev || prev.score < score){
+    if(prev) STATE.totalScore -= prev.score;
+    STATE.totalScore += score;
+    STATE.results[lv.id] = {score, maxScore:lv.maxScore, stars};
+  }
+  $('#global-score').textContent = Math.round(STATE.totalScore);
+
+  const medal = stars===3?'🥇':stars===2?'🥈':stars===1?'🥉':'💫';
+  $('#fact-medal').textContent = medal;
+  $('#fact-title').textContent = lv.name + ' — تمام شد!';
+  $('#fact-score-text').textContent = `امتیاز: ${score} از ${lv.maxScore}`;
+  $('#fact-sci-text').textContent = '🔬 ' + lv.fact;
+  showScreen('screen-fact');
+
+  const btn = $('#fact-continue');
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn,btn);
+  newBtn.addEventListener('click',()=>{
+    if(lv.id >= LEVELS.length){
+      showFinal();
+    } else {
+      renderMap();
+      showScreen('screen-map');
+    }
+  });
+}
+
+function showFinal(){
+  let totalPct = 0, count=0;
+  const grid = $('#final-grid');
+  grid.innerHTML='';
+  LEVELS.forEach(lv=>{
+    const r = STATE.results[lv.id];
+    const pct = r? r.score/r.maxScore : 0;
+    totalPct += pct; count++;
+    const cell = mkEl('div','final-cell', `<div class="fe">${lv.emoji}</div>${r?starsToEmoji(r.stars):'—'}`);
+    grid.appendChild(cell);
+  });
+  const avg = totalPct/count;
+  let stars=0;
+  if(avg>=0.85) stars=3; else if(avg>=0.6) stars=2; else if(avg>=0.3) stars=1;
+  const medal = stars===3?'🥇':stars===2?'🥈':stars===1?'🥉':'💫';
+  $('#final-medal').textContent = medal;
+  $('#final-title').textContent = stars===3?'قهرمان نانو!':stars===2?'نانوربات ماهر!':stars===1?'مأموریت کامل شد':'اولین قدم‌ها!';
+  $('#final-sub').textContent = `امتیاز کل: ${Math.round(STATE.totalScore)} — درجه سختی: ${DIFF_LABEL[STATE.difficulty]}`;
+  showScreen('screen-final');
+}
+
+/* =========================================================
+   LEVEL 1 — رگ‌های خونی (دقت و اجتناب)
+   ========================================================= */
+function runLevel1(stage, diff, addScore, finish){
+  stage.style.touchAction='none';
+  const W = stage.clientWidth, H = stage.clientHeight;
+  const bot = mkEl('div','nanobot');
+  let py = H/2;
+  bot.style.right='40px';
+  bot.style.top = py+'px';
+  stage.appendChild(bot);
+  const hint = mkEl('div','stage-hint','↑ ↓ یا کشیدن انگشت برای حرکت');
+  stage.appendChild(hint);
+
+  const speed = {easy:2.4, medium:3.2, hard:4.1}[diff];
+  const spawnRate = {easy:900, medium:650, hard:480}[diff];
+  const bonusRate = {easy:1400, medium:1600, hard:1900}[diff];
+
+  let obstacles=[], bonuses=[];
+  let raf, spawnT, bonusT, running=true, invuln=0;
+
+  function spawnObstacle(){
+    const y = rand(20,H-40);
+    const e = mkEl('div','rbc');
+    e.style.top=y+'px'; e.style.right='-40px';
+    stage.insertBefore(e,hint);
+    obstacles.push({e,x:W+40,y});
+  }
+  function spawnBonus(){
+    const y = rand(20,H-30);
+    const e = mkEl('div','bonus-orb');
+    e.style.top=y+'px'; e.style.right='-20px';
+    stage.insertBefore(e,hint);
+    bonuses.push({e,x:W+20,y});
+  }
+  spawnT = setInterval(spawnObstacle, spawnRate);
+  bonusT = setInterval(spawnBonus, bonusRate);
+
+  function onKey(e){
+    if(e.key==='ArrowUp'){ py = clamp(py-28,10,H-40); bot.style.top=py+'px'; }
+    if(e.key==='ArrowDown'){ py = clamp(py+28,10,H-40); bot.style.top=py+'px'; }
+  }
+  window.addEventListener('keydown',onKey);
+  function pointerMove(e){
+    const rect = stage.getBoundingClientRect();
+    const cy = (e.touches?e.touches[0].clientY:e.clientY) - rect.top;
+    py = clamp(cy-17,10,H-40);
+    bot.style.top=py+'px';
+  }
+  stage.addEventListener('pointermove',pointerMove);
+
+  function loop(){
+    if(!running) return;
+    invuln = Math.max(0,invuln-1);
+    const botRect = {x:W-40-34, y:py, w:34, h:34};
+    obstacles.forEach(o=>{
+      o.x -= speed*4; o.e.style.right=(W-o.x)+'px';
+      if(!o.hit && invuln<=0 && rectHit(botRect, {x:o.x-30,y:o.y,w:30,h:30})){
+        o.hit=true; o.e.classList.add('pop-bad');
+        addScore(-10); invuln=40;
+        floatMsg(stage, W-90, py, '-10', '#ff5c5c');
+        stage.classList.add('shake'); setTimeout(()=>stage.classList.remove('shake'),300);
+      }
+    });
+    bonuses.forEach(b=>{
+      b.x -= speed*4; b.e.style.right=(W-b.x)+'px';
+      if(!b.hit && rectHit(botRect,{x:b.x-16,y:b.y,w:16,h:16})){
+        b.hit=true; b.e.classList.add('pop-good');
+        addScore(6);
+        floatMsg(stage, W-90, py, '+6', '#ffc857');
+      }
+    });
+    obstacles = obstacles.filter(o=>{ if(o.x<-60||o.hit){ if(o.hit) setTimeout(()=>o.e.remove(),300); else o.e.remove(); return false;} return true; });
+    bonuses = bonuses.filter(b=>{ if(b.x<-40||b.hit){ if(b.hit) setTimeout(()=>b.e.remove(),300); else b.e.remove(); return false;} return true; });
+    raf = requestAnimationFrame(loop);
+  }
+  function rectHit(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+  raf = requestAnimationFrame(loop);
+
+  return { destroy(){
+    running=false; cancelAnimationFrame(raf);
+    clearInterval(spawnT); clearInterval(bonusT);
+    window.removeEventListener('keydown',onKey);
+    stage.removeEventListener('pointermove',pointerMove);
+  }};
+}
+
+/* =========================================================
+   LEVEL 2 — شکار باکتری
+   ========================================================= */
+function runLevel2(stage, diff, addScore, finish){
+  const bacteriaEmojis = ['🦠','🟢','🟣'];
+  const spawnRate = {easy:750, medium:560, hard:420}[diff];
+  const life = {easy:1900, medium:1500, hard:1200}[diff];
+  let running=true;
+  const hint = mkEl('div','stage-hint','فقط روی باکتری‌ها ضربه بزن');
+  stage.appendChild(hint);
+
+  const spawnT = setInterval(()=>{
+    if(!running) return;
+    const isBacteria = Math.random() < 0.62;
+    const e = mkEl('div','g-item', isBacteria ? pick(bacteriaEmojis) : '🩷');
+    e.style.fontSize='30px';
+    const x = rand(20, stage.clientWidth-50);
+    const y = rand(20, stage.clientHeight-50);
+    e.style.left=x+'px'; e.style.top=y+'px';
+    e.style.opacity='0'; e.style.transition='opacity .2s';
+    stage.insertBefore(e,hint);
+    requestAnimationFrame(()=>e.style.opacity='1');
+    const killT = setTimeout(()=>{ if(e.parentNode) e.remove(); },life);
+    e.addEventListener('click',()=>{
+      clearTimeout(killT);
+      if(isBacteria){
+        addScore(10); e.classList.add('pop-good');
+        floatMsg(stage,x,y,'+10','#3FEAD1');
+      } else {
+        addScore(-8); e.classList.add('pop-bad');
+        floatMsg(stage,x,y,'-8','#ff5c5c');
+        stage.classList.add('shake'); setTimeout(()=>stage.classList.remove('shake'),300);
+      }
+      setTimeout(()=>{ if(e.parentNode) e.remove(); },300);
+    });
+  },spawnRate);
+
+  return { destroy(){ running=false; clearInterval(spawnT); } };
+}
+
+/* =========================================================
+   LEVEL 3 — دارورسانی هدفمند
+   ========================================================= */
+function runLevel3(stage, diff, addScore, finish){
+  const cellCount = {easy:6, medium:8, hard:10}[diff];
+  let running = true;
+  const hint = mkEl('div','stage-hint','روی سلول بیمار (بنفش تیره) کلیک کن');
+  const grid = mkEl('div','cell-grid');
+  grid.style.gridTemplateColumns = `repeat(${cellCount<=6?3:4},1fr)`;
+  stage.appendChild(grid);
+  stage.appendChild(hint);
+
+  function layout(){
+    grid.innerHTML='';
+    const sickIndex = randInt(0,cellCount-1);
+    for(let i=0;i<cellCount;i++){
+      const cell = mkEl('div','cellobj '+(i===sickIndex?'sick':'healthy'), i===sickIndex?'🦠':'');
+      cell.addEventListener('click',()=>{
+        if(!running) return;
+        if(i===sickIndex){
+          addScore(15); cell.classList.add('pop-good');
+          floatMsg(stage, cell.offsetLeft, cell.offsetTop, '+15','#9d6fff');
+          setTimeout(layout,220);
+        } else {
+          addScore(-10); cell.classList.add('shake');
+          floatMsg(stage, cell.offsetLeft, cell.offsetTop, '-10','#ff5c5c');
+          setTimeout(()=>cell.classList.remove('shake'),300);
+        }
+      });
+      grid.appendChild(cell);
+    }
+  }
+  layout();
+  return { destroy(){ running=false; } };
+}
+
+/* =========================================================
+   LEVEL 4 — تعمیر DNA (پازل جفت‌سازی)
+   ========================================================= */
+function runLevel4(stage, diff, addScore, finish){
+  const pairsCount = {easy:4, medium:5, hard:6}[diff];
+  const bases = ['A','T','C','G'];
+  const complement = {A:'T',T:'A',C:'G',G:'C'};
+  let running=true, filled=0, chosenPiece=null;
+
+  const wrap = mkEl('div','quiz-wrap');
+  wrap.innerHTML = `<div class="quiz-q">قطعه را انتخاب کن، سپس جای خالی درست را در رشته DNA پیدا کن</div>`;
+  const rowsWrap = mkEl('div');
+  wrap.appendChild(rowsWrap);
+  const palette = mkEl('div','dna-palette');
+  wrap.appendChild(palette);
+  stage.appendChild(wrap);
+
+  const need = []; // required base for each slot
+  const slots = [];
+  for(let i=0;i<pairsCount;i++){
+    const fixedBase = pick(bases);
+    const reqBase = complement[fixedBase];
+    need.push(reqBase);
+    const row = mkEl('div','dna-row');
+    const fixed = mkEl('div','dna-fixed base-'+fixedBase, fixedBase);
+    fixed.style.background = {A:'#3FEAD1',T:'#ff6b8b',C:'#ffc857',G:'#9d6fff'}[fixedBase];
+    const slot = mkEl('div','dna-slot','');
+    slot.dataset.idx = i;
+    slots.push(slot);
+    row.appendChild(fixed);
+    row.appendChild(mkEl('div',null,'—'));
+    row.appendChild(slot);
+    rowsWrap.appendChild(row);
+    slot.addEventListener('click',()=>{
+      if(!running || slot.classList.contains('filled') || !chosenPiece) return;
+      const pieceBase = chosenPiece.dataset.base;
+      if(pieceBase === need[i]){
+        slot.classList.add('filled');
+        slot.style.background = {A:'#3FEAD1',T:'#ff6b8b',C:'#ffc857',G:'#9d6fff'}[pieceBase];
+        slot.textContent = pieceBase;
+        addScore(100/pairsCount);
+        chosenPiece.remove();
+        chosenPiece=null;
+        filled++;
+        if(filled>=pairsCount) setTimeout(finish,500);
+      } else {
+        slot.classList.add('shake');
+        addScore(-4);
+        setTimeout(()=>slot.classList.remove('shake'),300);
+      }
+    });
+  }
+
+  // build palette: correct pieces + distractors
+  let pieces = need.slice();
+  const distractorCount = {easy:1, medium:2, hard:3}[diff];
+  for(let i=0;i<distractorCount;i++) pieces.push(pick(bases));
+  pieces = shuffle(pieces);
+  function renderPalette(){
+    palette.innerHTML='';
+    pieces.forEach((b,idx)=>{
+      const p = mkEl('div','dna-piece base-'+b, b);
+      p.dataset.base=b;
+      p.style.background = {A:'#3FEAD1',T:'#ff6b8b',C:'#ffc857',G:'#9d6fff'}[b];
+      p.addEventListener('click',()=>{
+        if(!running) return;
+        $$('.dna-piece').forEach(x=>x.classList.remove('chosen'));
+        p.classList.add('chosen');
+        chosenPiece=p;
+      });
+      palette.appendChild(p);
+    });
+  }
+  renderPalette();
+
+  return { destroy(){ running=false; } };
+}
+
+/* =========================================================
+   LEVEL 5 — سپر گرافنی (بازی گرفتن اشیاء)
+   ========================================================= */
+function runLevel5(stage, diff, addScore, finish){
+  stage.style.touchAction='none';
+  const W = stage.clientWidth, H = stage.clientHeight;
+  const meterWrap = mkEl('div','meter-wrap');
+  const meterFill = mkEl('div','meter-fill');
+  meterWrap.appendChild(meterFill);
+  stage.appendChild(meterWrap);
+  const hint = mkEl('div','stage-hint','با کشیدن انگشت/موس، شش‌ضلعی‌ها را بگیر، از آتش دوری کن');
+  stage.appendChild(hint);
+
+  const paddle = mkEl('div',null,'🛡');
+  paddle.style.position='absolute'; paddle.style.fontSize='34px'; paddle.style.bottom='6px';
+  let px = W/2;
+  paddle.style.left = (px-20)+'px';
+  stage.appendChild(paddle);
+
+  let meter=0, running=true, items=[];
+  const fallSpeed = {easy:1.6, medium:2.2, hard:2.9}[diff];
+  const spawnRate = {easy:650, medium:520, hard:420}[diff];
+
+  function movePaddle(x){
+    const rect = stage.getBoundingClientRect();
+    px = clamp(x-rect.left, 20, W-20);
+    paddle.style.left = (px-20)+'px';
+  }
+  function pMove(e){ movePaddle(e.touches?e.touches[0].clientX:e.clientX); }
+  stage.addEventListener('pointermove',pMove);
+  function onKey(e){
+    if(e.key==='ArrowLeft') movePaddle(px-30+stage.getBoundingClientRect().left);
+    if(e.key==='ArrowRight') movePaddle(px+30+stage.getBoundingClientRect().left);
+  }
+  window.addEventListener('keydown',onKey);
+
+  const spawnT = setInterval(()=>{
+    const danger = Math.random() < 0.28;
+    const e = mkEl('div',null, danger?'🔥':'⬡');
+    e.style.position='absolute'; e.style.fontSize='26px'; e.style.color='#3FEAD1';
+    const x = rand(20,W-30);
+    e.style.left=x+'px'; e.style.top='-30px';
+    stage.insertBefore(e,hint);
+    items.push({e,x,y:-30,danger});
+  },spawnRate);
+
+  let raf;
+  function loop(){
+    if(!running) return;
+    items.forEach(it=>{
+      it.y += fallSpeed*3.4;
+      it.e.style.top = it.y+'px';
+      if(!it.done && it.y > H-46 && it.y < H-6 && Math.abs(it.x-px)<26){
+        it.done=true;
+        if(it.danger){ addScore(-15); meter=clamp(meter-10,0,100); floatMsg(stage,it.x,it.y,'-15','#ff5c5c'); }
+        else { addScore(9); meter=clamp(meter+11,0,100); floatMsg(stage,it.x,it.y,'+9','#3FEAD1'); }
+        meterFill.style.width = meter+'%';
+        it.e.remove();
+        if(meter>=100){ addScore(15); setTimeout(finish,400); }
+      }
+    });
+    items = items.filter(it=>{ if(it.done) return false; if(it.y>H+30){ it.e.remove(); return false;} return true; });
+    raf = requestAnimationFrame(loop);
+  }
+  raf = requestAnimationFrame(loop);
+
+  return { destroy(){
+    running=false; cancelAnimationFrame(raf); clearInterval(spawnT);
+    stage.removeEventListener('pointermove',pMove);
+    window.removeEventListener('keydown',onKey);
+  }};
+}
+
+/* =========================================================
+   LEVEL 6 — نانولوله‌های کربنی (ساخت پل)
+   ========================================================= */
+function runLevel6(stage, diff, addScore, finish){
+  const slotCount = {easy:4, medium:5, hard:6}[diff];
+  const colors = [
+    {c:'#3FEAD1', icon:'⚡'}, {c:'#9d6fff', icon:'⚡'}, {c:'#ffc857', icon:'⚡'}, {c:'#ff6b8b', icon:'⚡'}
+  ];
+  let running=true, chosen=null, doneCount=0;
+
+  const wrap = mkEl('div','quiz-wrap');
+  wrap.innerHTML = `<div class="quiz-q">قطعه رنگی را انتخاب کن و در جای هم‌رنگش در پل بگذار</div>`;
+  const track = mkEl('div','bridge-track');
+  wrap.appendChild(track);
+  const palette = mkEl('div','palette-row');
+  wrap.appendChild(palette);
+  stage.appendChild(wrap);
+
+  const need = [];
+  for(let i=0;i<slotCount;i++){
+    const col = pick(colors);
+    need.push(col);
+    const slot = mkEl('div','bridge-slot','');
+    slot.style.borderColor = col.c;
+    slot.dataset.idx = i;
+    slot.addEventListener('click',()=>{
+      if(!running || slot.classList.contains('done') || !chosen) return;
+      if(chosen.color === col.c){
+        slot.classList.add('done');
+        slot.style.background = col.c;
+        slot.textContent = '━';
+        addScore(100/slotCount);
+        chosen.el.remove();
+        chosen=null; doneCount++;
+        if(doneCount>=slotCount) setTimeout(finish,500);
+      } else {
+        slot.classList.add('shake');
+        addScore(-3);
+        setTimeout(()=>slot.classList.remove('shake'),300);
+      }
+    });
+    track.appendChild(slot);
+  }
+
+  let piecesData = need.map(c=>c.c);
+  const distractorCount = {easy:1, medium:2, hard:3}[diff];
+  for(let i=0;i<distractorCount;i++) piecesData.push(pick(colors).c);
+  piecesData = shuffle(piecesData);
+  piecesData.forEach(col=>{
+    const piece = mkEl('div','tube-piece','⚡');
+    piece.style.background = col;
+    piece.addEventListener('click',()=>{
+      if(!running) return;
+      $$('.tube-piece').forEach(p=>p.classList.remove('chosen'));
+      piece.classList.add('chosen');
+      chosen = {el:piece, color:col};
+    });
+    palette.appendChild(piece);
+  });
+
+  return { destroy(){ running=false; } };
+}
+
+/* =========================================================
+   LEVEL 7 — آزمایشگاه نانو (کوییز مواد)
+   ========================================================= */
+function runLevel7(stage, diff, addScore, finish){
+  const questions = [
+    {q:'برای ساخت «شیشه خودتمیزشونده» کدام ماده نانویی لازم است؟', opts:[{em:'🪟',lb:'دی‌اکسید تیتانیوم',ok:true},{em:'🧂',lb:'نمک معمولی',ok:false},{em:'🪵',lb:'براده چوب',ok:false}]},
+    {q:'کدام ماده در ساخت «سپر ضدگلوله سبک» نانویی استفاده می‌شود؟', opts:[{em:'🕸',lb:'نانولوله کربنی',ok:true},{em:'🍬',lb:'شکر فشرده',ok:false},{em:'🧊',lb:'یخ خالص',ok:false}]},
+    {q:'کدام نانوذره در «ضدعفونی‌کننده و ماسک نانویی» کاربرد دارد؟', opts:[{em:'🥈',lb:'نانوذرات نقره',ok:true},{em:'🌾',lb:'الیاف گندم',ok:false},{em:'🪨',lb:'سنگ آهک',ok:false}]},
+  ];
+  let idx=0, running=true;
+  const per = 100/questions.length;
+  const wrap = mkEl('div','quiz-wrap');
+  stage.appendChild(wrap);
+
+  function renderQ(){
+    if(idx>=questions.length){ setTimeout(finish,300); return; }
+    const item = questions[idx];
+    wrap.innerHTML = `<div class="quiz-q">${item.q}</div>`;
+    const grid = mkEl('div','choice-grid');
+    shuffle(item.opts).forEach(o=>{
+      const card = mkEl('div','choice-card', `<span class="em">${o.em}</span><span class="lb">${o.lb}</span>`);
+      card.addEventListener('click',()=>{
+        if(!running) return;
+        $$('.choice-card').forEach(c=>c.style.pointerEvents='none');
+        if(o.ok){ card.classList.add('correct'); addScore(per); }
+        else { card.classList.add('wrong'); }
+        setTimeout(()=>{ idx++; renderQ(); }, 700);
+      });
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+  }
+  renderQ();
+  return { destroy(){ running=false; } };
+}
+
+/* =========================================================
+   LEVEL 8 — نانو در طبیعت (تطبیق)
+   ========================================================= */
+function runLevel8(stage, diff, addScore, finish){
+  const pairs = [
+    {leftEm:'🦈', leftTxt:'پوست کوسه', rightEm:'🏊', rightTxt:'سطوح کم‌اصطکاک و ضدباکتری'},
+    {leftEm:'🌿', leftTxt:'برگ نیلوفر آبی', rightEm:'🪟', rightTxt:'خودتمیزشوندگی و دفع آب'},
+    {leftEm:'🕸️', leftTxt:'تار عنکبوت', rightEm:'🧵', rightTxt:'الیاف فوق‌مستحکم و سبک'},
+    {leftEm:'🦋', leftTxt:'بال پروانه', rightEm:'🎨', rightTxt:'رنگ‌های ساختاری و حسگر نوری'},
+  ];
+  let running=true, selLeft=null, matched=0;
+  const per = 100/pairs.length;
+
+  const wrap = mkEl('div','quiz-wrap');
+  wrap.innerHTML = `<div class="quiz-q">اول یک پدیده طبیعی را انتخاب کن، بعد فناوری الهام‌گرفته از آن را پیدا کن</div>`;
+  const cols = mkEl('div','match-cols');
+  const leftCol = mkEl('div','match-col');
+  const rightCol = mkEl('div','match-col');
+  const leftItems = shuffle(pairs.map((p,i)=>({em:p.leftEm,t:p.leftTxt,i})));
+  const rightItems = shuffle(pairs.map((p,i)=>({em:p.rightEm,t:p.rightTxt,i})));
+
+  leftItems.forEach(it=>{
+    const card = mkEl('div','match-card', `<span class="mc-em">${it.em}</span><span>${it.t}</span>`);
+    card.dataset.idx = it.i;
+    card.addEventListener('click',()=>{
+      if(!running || card.classList.contains('locked')) return;
+      $$('.match-col:first-child .match-card').forEach(c=>c.classList.remove('sel'));
+      card.classList.add('sel');
+      selLeft = card;
+    });
+    leftCol.appendChild(card);
+  });
+  rightItems.forEach(it=>{
+    const card = mkEl('div','match-card', `<span class="mc-em">${it.em}</span><span>${it.t}</span>`);
+    card.dataset.idx = it.i;
+    card.addEventListener('click',()=>{
+      if(!running || card.classList.contains('locked') || !selLeft) return;
+      if(selLeft.dataset.idx === card.dataset.idx){
+        selLeft.classList.add('locked'); card.classList.add('locked');
+        selLeft.classList.remove('sel');
+        addScore(per); matched++;
+        selLeft=null;
+        if(matched>=pairs.length) setTimeout(finish,400);
+      } else {
+        card.classList.add('wrong');
+        setTimeout(()=>card.classList.remove('wrong'),350);
+        addScore(-4);
+      }
+    });
+    rightCol.appendChild(card);
+  });
+  cols.appendChild(leftCol); cols.appendChild(rightCol);
+  wrap.appendChild(cols);
+  stage.appendChild(wrap);
+
+  return { destroy(){ running=false; } };
+}
+
+/* =========================================================
+   LEVEL 9 — کارخانه نانو (مونتاژ محصول)
+   ========================================================= */
+function runLevel9(stage, diff, addScore, finish){
+  const products = [
+    {name:'شیشه خودتمیزشونده', em:'🪟', parts:['دی‌اکسید تیتانیوم','لایه نانومتری شفاف','پوشش ضدآب'], distract:['پشم شیشه','رنگ روغن','پارچه کتان']},
+    {name:'ماسک نانویی', em:'😷', parts:['فیلتر نانوالیاف','نانوذرات نقره','لایه تنفس‌پذیر'], distract:['کاغذ روزنامه','فویل آلومینیوم','پلاستیک ضخیم']},
+    {name:'لباس نانویی ضدلک', em:'🧥', parts:['پوشش نانوسیلیکون','الیاف ضدآب','ساختار میکروخلل'], distract:['نخ پشمی ساده','دکمه فلزی','زیپ پلاستیکی']},
+  ];
+  const product = pick(products);
+  let running=true, correctDone=0;
+  const per = 100/product.parts.length;
+
+  const wrap = mkEl('div','quiz-wrap');
+  wrap.innerHTML = `<div class="quiz-q">محصول: ${product.em} <b>${product.name}</b><br><span style="font-size:12px;color:var(--text-dim)">قطعات درست را از نوار انتخاب کن</span></div>`;
+  const grid = mkEl('div','choice-grid');
+  const belt = shuffle([...product.parts.map(p=>({lb:p,ok:true})), ...shuffle(product.distract).slice(0,{easy:2,medium:3,hard:3}[diff]).map(p=>({lb:p,ok:false}))]);
+  belt.forEach(p=>{
+    const card = mkEl('div','choice-card', `<span class="em">⚙️</span><span class="lb">${p.lb}</span>`);
+    card.addEventListener('click',()=>{
+      if(!running || card.dataset.used) return;
+      if(p.ok){
+        card.dataset.used='1'; card.classList.add('correct'); card.style.pointerEvents='none';
+        addScore(per); correctDone++;
+        if(correctDone>=product.parts.length) setTimeout(finish,500);
+      } else {
+        card.classList.add('wrong');
+        addScore(-6);
+        setTimeout(()=>card.classList.remove('wrong'),350);
+      }
+    });
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+  stage.appendChild(wrap);
+
+  return { destroy(){ running=false; } };
+}
+
+/* =========================================================
+   LEVEL 10 — نبرد نهایی با سلول سرطانی
+   ========================================================= */
+function runLevel10(stage, diff, addScore, finish){
+  const cancerCount = {easy:4, medium:5, hard:6}[diff];
+  const healthyCount = {easy:6, medium:7, hard:8}[diff];
+  let running=true, remaining=cancerCount;
+
+  const hint = mkEl('div','stage-hint','فقط سلول‌های تیره و ناهموار (سرطانی) را بزن');
+  const grid = mkEl('div','cell-grid');
+  const total = cancerCount+healthyCount;
+  grid.style.gridTemplateColumns = `repeat(${total<=9?3:4},1fr)`;
+  stage.appendChild(grid);
+  stage.appendChild(hint);
+
+  function layout(){
+    grid.innerHTML='';
+    let arr = [];
+    for(let i=0;i<cancerCount;i++) arr.push('cancer');
+    for(let i=0;i<healthyCount;i++) arr.push('healthy');
+    arr = shuffle(arr);
+    arr.forEach(type=>{
+      const cell = mkEl('div','cellobj '+type, type==='cancer'?'☣':'');
+      cell.addEventListener('click',()=>{
+        if(!running) return;
+        if(type==='cancer'){
+          addScore(100/cancerCount); cell.classList.add('pop-good');
+          floatMsg(stage, cell.offsetLeft, cell.offsetTop, '+', '#3FEAD1');
+          remaining--;
+          setTimeout(()=>cell.remove(),250);
+          if(remaining<=0) setTimeout(finish,500);
+        } else {
+          addScore(-15); cell.classList.add('shake');
+          floatMsg(stage, cell.offsetLeft, cell.offsetTop, '-15','#ff5c5c');
+          setTimeout(()=>cell.classList.remove('shake'),300);
+        }
+      });
+      grid.appendChild(cell);
+    });
+  }
+  layout();
+
+  return { destroy(){ running=false; } };
+}
+</script>
+</body>
+</html>
